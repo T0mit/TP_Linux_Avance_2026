@@ -468,7 +468,36 @@ Dans le premier terminal, je lance un script, qui devient donc un processus. J'i
 
 ```text
 Patch (sortie de git diff) :
-
+diff --git a/script.sh b/script.sh
+index 72a8b3d..dbbf2ce 100760
+--- a/script.sh
++++ b/script.sh
+@@ -15,9 +15,17 @@ reload_config() {
+     echo "[$(date +%T)] Configuration rechargée."
+ }
+ 
++afficher_stats() {
++    echo ""
++    echo "[$(date +%T)] SIGUSR1 reçu : Statistiques courantes"
++    echo " └─ Itérations complétées : $counter"
++    echo " └─ Temps d'exécution     : ${SECONDS}s"
++}
++
+ # Installer les gestionnaires de signaux
+ trap cleanup SIGTERM SIGINT
+ trap reload_config SIGHUP
++trap afficher_stats SIGUSR1
+ 
+ LOCKFILE="/tmp/signal_demo_$$.lock"
+ touch "$LOCKFILE"
+@@ -28,5 +36,5 @@ echo "Envoyez SIGHUP pour recharger, SIGTERM/SIGINT pour quitter."
+ counter=0
+ while true; do
+     echo "[$(date +%T)] En cours... (itération $counter)"
+-    counter=$((counter + 1))
+     sleep 5
++    counter=$((counter + 1))
+ done
 
 Interprétation :
 
