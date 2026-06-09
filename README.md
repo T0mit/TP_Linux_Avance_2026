@@ -237,65 +237,70 @@ htop
 
 ```text
 Votre commande :
-
+echo $$
 
 Votre résultat :
-
+1893
 
 Interprétation :
-
+Le PID de mon shell est 1893
 ```
 
 #### Question 1.1.a.2 — Quel processus est le parent de votre shell (utilisez `ps -o pid,ppid,comm -p $$` puis remontez la chaîne) ?
 
 ```text
 Votre commande :
-
+ps -o pid,ppid,comm -p $$
 
 Votre résultat :
-
+PID    PPID COMMAND
+1893   1079 bash
 
 Interprétation :
-
+Le PPID de mon shell est 1079.
 ```
 
 #### Question 1.1.a.3 — Combien de threads le processus PID 1 utilise-t-il ? (Astuce : `/proc/1/status` champ `Threads`, ou `ps -L`.)
 
 ```text
 Votre commande :
-
+cat /proc/1893/status
 
 Votre résultat :
-
+Threads : 1
 
 Interprétation :
-
+Mon processus shell utilise 1 thread
 ```
 
 #### Question 1.1.a.4 — Trouver le top 3 des processus consommant le plus de mémoire **résidente** (RSS), pas virtuelle.
 
 ```text
 Votre commande :
-
+ps -aux --sort=-rss | head -4
 
 Votre résultat :
-
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+vscode       986  2.2  4.6 18775816 379676 ?     Sl   12:10   0:47 /vscode/bin/linux-x64/6a44c352bd24569c417e530095901b649960f9f8/node --dns-result-order=ipv4first /vscode/bin/linux-x64/6a44c352bd24569c417e530095901b649960f9f8/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=false
+vscode       964  0.4  1.9 1792256 156808 ?      Sl   12:10   0:09 /vscode/bin/linux-x64/6a44c352bd24569c417e530095901b649960f9f8/node /vscode/bin/linux-x64/6a44c352bd24569c417e530095901b649960f9f8/out/server-main.js --log trace --force-disable-user-env --server-data-dir /home/vscode/.vscode-remote --accept-server-license-terms --host 127.0.0.1 --port 0 --connection-token-file /home/vscode/.vscode-remote/data/Machine/.connection-token-6a44c352bd24569c417e530095901b649960f9f8 --extensions-download-dir /home/vscode/.vscode-remote/extensionsCache --install-builtin-extension GitHub.vscode-pull-request-github --install-builtin-extension github.github-vscode-theme --install-builtin-extension github.codespaces --install-extension ms-azuretools.vscode-containers --do-not-sync --start-server  --enable-remote-auto-shutdown --skip-requirements-check
+vscode      1337  0.1  1.5 10006016 124000 ?     Sl   12:11   0:02 /vscode/bin/linux-x64/6a44c352bd24569c417e530095901b649960f9f8/node /vscode/bin/linux-x64/6a44c352bd24569c417e530095901b649960f9f8/extensions/json-language-features/server/dist/node/jsonServerMain --node-ipc --clientProcessId=986
 
 Interprétation :
-
+Le processus consommant le plus de mémoire RSS est le processus avec le PID 986. Le second est le 964, et le troisième est le 1337.
 ```
 
 #### Question 1.1.a.5 — Lire `/proc/$$/limits`. Quelle est la limite molle de `nofile` (max fichiers ouverts) pour votre shell ? La modifier temporairement à 2048 avec `ulimit -n`.
 
 ```text
 Votre commande :
-
-
+cat /proc/$$/limits
+ulimit -Sn 2048
 Votre résultat :
-
+Limit           Soft Limit  Hard Limit  Units
+Max open files  524288      524288      files
 
 Interprétation :
-
+Avant ma modification, la Soft Limit était égale à la Hard Limit. Désormais, elle est à 2048 fichiers ouverts max.
 ```
 
 #### Exercice 1.1.b — Manipulation des signaux
@@ -329,36 +334,42 @@ kill -SIGKILL $!
 
 ```text
 Votre commande :
-
+ps -o pid,stat,comm -p $PID_SLEEP
 
 Votre résultat :
+PID STAT COMMAND
+20117 T  sleep
 
+PID STAT COMMAND
+20117 S  sleep
 
 Interprétation :
-
+On voie que SIGSTOP à suspendu le processus (T), et SIGCONT à endormi le processus (S).
 ```
 
 #### Question 1.1.b.2 — Lancez un `sleep 60`, suspendez-le avec Ctrl+Z, mettez-le en background avec `bg`, puis ramenez-le en foreground avec `fg`. Expliquer ce qui se passe en termes de signaux.
 
 ```text
 Votre commande :
-
+sleep 60 (Ctrl+Z)
+bg
+fg
 
 Votre résultat :
 
 
 Interprétation :
-
+Lorsque je fait Ctrl+Z lorsque le processus est au premier plan, cela envoie un signal SIGTSTP, qui stoppe le processus. Lorsque j'effectue un bg, le signal SIGCONT est utilisé pour reprendre le processus (en arrière plan). Lorsque j'effectue fg, aucun signal n'est transmis au processus car son état ne change pas et il reste en cours d'exécution, simplement il est remis au premier plan.
 ```
 
 #### Question 1.1.b.3 — Pourquoi SIGKILL et SIGSTOP ne peuvent-ils pas être interceptés ? Lire `man 7 signal` et citer le passage pertinent.
 
 ```text
 Votre résultat :
-
+The signals SIGKILL and SIGSTOP cannot be caught, blocked, or ignored.
 
 Interprétation :
-
+Ces signaux ne peuvent être interceptés par sécurité. Le kernel préfère traiter directement ces signaux plutôt que de laisser le processus (parfois planté ou malveillant) s'en charger.
 ```
 
 **Tableau des signaux importants :**
@@ -428,13 +439,29 @@ kill -SIGTERM $(pgrep -f signal_demo.sh)
 
 ```text
 Votre commande :
-
+./scripts/signal_demo.sh
+kill -SIGHUP $(pgrep -f signal_demo.sh)
+kill -SIGTERM $(pgrep -f signal_demo.sh)
 
 Votre résultat :
+[13:15:30] Démarrage (PID: 39029). Lockfile: /tmp/signal_demo_39029.lock
+Envoyez SIGHUP pour recharger, SIGTERM/SIGINT pour quitter.
+[13:15:30] En cours... (itération 0)
+[13:15:35] En cours... (itération 1)
+[13:15:40] En cours... (itération 2)
+[13:15:45] En cours... (itération 3)
+[13:15:50] En cours... (itération 4)
+[13:15:55] En cours... (itération 5)
+[13:16:00] SIGHUP reçu : rechargement de la configuration...
+[13:16:01] Configuration rechargée.
+[13:16:01] En cours... (itération 6)
+[13:16:06] En cours... (itération 7)
 
+[13:16:12] Signal reçu : nettoyage en cours...
+[13:16:12] Nettoyage terminé. Bye.
 
 Interprétation :
-
+Dans le premier terminal, je lance un script, qui devient donc un processus. J'interragis avec ce dernier à l'aide d'un second terminal, et je lui envoie un signal SIGHUP, puis un signal SIGTERM. Lorsque je retourne dans le premier terminal, je vois que le processus à bien reçu mes signaux et s'est arrêté.
 ```
 
 #### Question 1.1.c.2 — Modifier le script pour qu'un SIGUSR1 affiche les statistiques courantes (uptime + nombre d'itérations) sans interrompre la boucle. Joindre le patch.
