@@ -116,39 +116,48 @@ cat /proc/cmdline
 
 ```text
 Votre commande :
-
+uname -a
 
 Votre résultat :
-
+Linux codespaces-d03aec 6.8.0-1052-azure #58~22.04.1-Ubuntu SMP Thu Mar 26 05:02:21 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
 
 Interprétation :
-
+Il s'agit d'un noyau en version 6.8.0, qui provient du Cloud Azure.
 ```
 
 #### Question 0.2.b — Combien de vCPUs et combien de RAM le Codespace expose-t-il ? D'où vient cette information (`/proc/cpuinfo`, `lscpu`, cgroup) ?
 
 ```text
 Votre commande :
-
+nproc
+free -h
 
 Votre résultat :
-
+2 vCPU
+7.8 Gi RAM
 
 Interprétation :
-
+Le conteneur Codespace possède 2 vCPU et environ 8 Go de RAM.
 ```
 
 #### Question 0.2.c — Inspecter `/proc/1/cgroup` et `/proc/1/status`. Le PID 1 du Codespace est-il vraiment `systemd` ? Pourquoi ?
 
 ```text
 Votre commande :
-
+cat /proc/1/cgroup
+cat /proc/1/status
 
 Votre résultat :
-
+0::/init
+Name:   sh
+Umask:  0022
+State:  S (sleeping)
+Tgid:   1
+Ngid:   0
+Pid:    1
 
 Interprétation :
-
+Le processus ayant le PID 1 n'est pas systemd mais un simple shell. Ce processus est probablement lancé par Azure pour initer le Codespace avec un script par exemple.
 ```
 
 ### 0.3 — Première trace dans le dépôt
@@ -166,13 +175,17 @@ git commit -m "chore: init livrables/"
 
 ```text
 Votre commande :
-
+git log --oneline -5
 
 Votre résultat :
-
+64b7ab2 (HEAD -> main) chore : init livrables/
+a08409f (origin/main, origin/HEAD) Extend workshop to 25h with kernel internals, eBPF, K8s and answer blocks
+372476f Configure devcontainer with Ubuntu 22.04 setup
+72284ee Create devcontainer.json
+0e0549b Revise forking instructions in README
 
 Interprétation :
-
+La première ligne montre le commit que je viens d'effectuer. Les autres lignes sont des modifications précédentes.
 ```
 
 ---
