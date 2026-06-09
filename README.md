@@ -513,7 +513,7 @@ Votre résultat :
 
 
 Interprétation :
-
+Si le trap est défini après le démarrage de la boucle, il n'est jamais lu lorsque le script est exécuté, donc la boucle est infinie et bloquée. Les signaux envoyés depuis un autre terminal ne sont jamais reçus.
 ```
 
 #### Exercice 1.1.d — Priorités, nice et ionice
@@ -544,13 +544,15 @@ kill $PID_LOW $PID_DEFAULT
 
 ```text
 Votre commande :
-
+top -p $PID_LOW,$PID_DEFAULT -d 1
 
 Votre résultat :
-
+PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                                                     
+  61574 vscode    20   0    5768   1936   1832 R  96.0   0.0   0:28.21 yes                                                         
+  61433 vscode    39  19    5768   1936   1832 R  76.0   0.0   0:34.78 yes
 
 Interprétation :
-
+Le processus lancé avec une priorité plus faible n'utilise que 75% du processeur environ. Le processus lancé avec une priorité par défaut utilise environ 100% du processeur.
 ```
 
 #### Question 1.1.d.2 — Quelle est la plage valide de `nice` ? Et celle de `renice` accessible à un utilisateur non-root ? (Tester en augmentant puis en abaissant la valeur de nice.)
